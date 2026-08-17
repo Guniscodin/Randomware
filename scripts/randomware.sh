@@ -71,14 +71,20 @@ add_tool() {
     echo "[randomware] Checking if '$name' is available via apt..."
 
     local SOURCE=""
-    if apt-cache show "$name" > /dev/null 2>&1; then
-        SOURCE="standard"
-    elif apt-cache policy "$name" 2>/dev/null | grep -q "http.kali.org"; then
-        echo "[randomware] '$name' not in standard repos, but found in Kali fallback."
-        SOURCE="kali"
-    else
+    POLICY_OUT=$(apt-cache policy "$name" 2>/dev/null)
+
+    if [ -z "$POLICY_OUT" ] || ! echo "$POLICY_OUT" | grep -q "Candidate:"; then
         echo "[randomware] ERROR: '$name' not found in apt (standard or Kali). May need a source build."
         exit 1
+    fi
+
+    if echo "$POLICY_OUT" | grep -qE "archive\.ubuntu\.com|security\.ubuntu\.com"; then
+        SOURCE="standard"
+    elif echo "$POLICY_OUT" | grep -q "http.kali.org"; then
+        SOURCE="kali"
+        echo "[randomware] '$name' only resolves from Kali fallback."
+    else
+        SOURCE="standard"
     fi
 
     if grep -qx "$name" "$TOOLS_FILE" 2>/dev/null; then
