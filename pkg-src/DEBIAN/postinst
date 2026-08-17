@@ -1,0 +1,46 @@
+#!/bin/bash
+# Don't use 'set -e' here on purpose — wordlist downloads are best-effort,
+# a failed download should never break the package install.
+
+WORDLIST_DIR="/usr/share/wordlists"
+mkdir -p "$WORDLIST_DIR"
+
+echo "[randomware] Setting up wordlists in $WORDLIST_DIR..."
+
+fetch() {
+    local url="$1"
+    local out="$2"
+    if [ -f "$out" ]; then
+        echo "[randomware] $out already exists, skipping."
+        return 0
+    fi
+    echo "[randomware] Fetching $(basename "$out")..."
+    if curl -fsSL --max-time 60 -o "$out" "$url"; then
+        echo "[randomware] Got $(basename "$out")"
+    else
+        echo "[randomware] WARNING: failed to fetch $(basename "$out"), skipping (not fatal)."
+        rm -f "$out"
+    fi
+}
+
+fetch "https://raw.githubusercontent.com/praetorian-inc/Hob0Rules/master/wordlists/rockyou.txt.gz" \
+      "$WORDLIST_DIR/rockyou.txt.gz"
+
+fetch "https://raw.githubusercontent.com/berzerk0/Probable-Wordlists/master/Real-Passwords/WPA-Length/Top4800-WPA-probable-v2.txt" \
+      "$WORDLIST_DIR/probable-v2-wpa-top4800.txt"
+
+# Optional, best-effort only — HashMob serves this via their own API, not a stable
+# static mirror, so this is expected to sometimes fail/skip.
+fetch "https://hashmob.net/api/v2/archive/hashmob.net_2025.found" \
+      "$WORDLIST_DIR/hashmob.net_2025_medium.txt"
+
+fetch "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/xato-net-10-million-passwords-10000.txt" \
+      "/usr/share/wordlists/top10k-passwords.txt"
+
+if [ -f "$WORDLIST_DIR/rockyou.txt.gz" ]; then
+    gunzip -kf "$WORDLIST_DIR/rockyou.txt.gz" 2>/dev/null || true
+fi
+
+echo "[randomware] Wordlist setup complete. Check $WORDLIST_DIR for what came through."
+
+exit 0

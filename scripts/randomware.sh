@@ -1,14 +1,24 @@
 #!/bin/bash
 set -e
 
-BASE="/home/gunornot/toolkit-repo"
-REPO_DIR="$BASE/repo"
-PKG_DIR="$BASE/randomware"
-TOOLS_FILE="$BASE/tools.txt"
-KALI_TOOLS_FILE="$BASE/kali-tools.txt"
+REPO_URL="https://github.com/Guniscodin/Randomware.git"
+RW_HOME="${RANDOMWARE_HOME:-$HOME/.randomware-src}"
+REPO_DIR="$RW_HOME/repo"
+PKG_SRC="$REPO_DIR/pkg-src"
+PKG_BUILD="$RW_HOME/randomware"
+TOOLS_FILE="$PKG_SRC/tools.txt"
+KALI_TOOLS_FILE="$PKG_SRC/kali-tools.txt"
 GPG_KEY="CD01C33406E0A9FC2316FCB268014A519BCDFC3D"
 WORDLIST_DIR="/usr/share/wordlists"
 LOCKFILE="/tmp/randomware.lock"
+
+ensure_repo() {
+    if [ ! -d "$REPO_DIR/.git" ]; then
+        echo "[randomware] Repo source not found locally, cloning to $REPO_DIR..."
+        mkdir -p "$RW_HOME"
+        git clone "$REPO_URL" "$REPO_DIR"
+    fi
+}
 
 usage() {
     echo "Usage:"
@@ -22,16 +32,23 @@ rebuild_and_publish() {
     echo "[randomware] Pulling latest repo state before publishing..."
     git pull --rebase
 
-    cd "$BASE"
+    # Sync pkg-src -> build dir
+    rm -rf "$PKG_BUILD"
+    mkdir -p "$PKG_BUILD/usr/local/bin"
+    cp -r "$PKG_SRC/DEBIAN" "$PKG_BUILD/DEBIAN"
+    cp "$REPO_DIR/scripts/randomware.sh" "$PKG_BUILD/usr/local/bin/randomware"
+    chmod 755 "$PKG_BUILD/usr/local/bin/randomware"
 
-    CURRENT_VER=$(grep "^Version:" "$PKG_DIR/DEBIAN/control" | awk '{print $2}')
+    CURRENT_VER=$(grep "^Version:" "$PKG_BUILD/DEBIAN/control" | awk '{print $2}')
     NEW_VER=$(echo "$CURRENT_VER" | awk -F. '{print $1"."$2"."$3+1}')
-    sed -i "s/^Version:.*/Version: $NEW_VER/" "$PKG_DIR/DEBIAN/control"
+    sed -i "s/^Version:.*/Version: $NEW_VER/" "$PKG_BUILD/DEBIAN/control"
+    sed -i "s/^Version:.*/Version: $NEW_VER/" "$PKG_SRC/DEBIAN/control"
     echo "[randomware] Bumping version $CURRENT_VER -> $NEW_VER"
 
-    rm -f "$BASE/randomware.deb"
-    dpkg-deb --build --root-owner-group "$PKG_DIR"
-    cp "$BASE/randomware.deb" "$REPO_DIR/randomware.deb"
+    rm -f "$REPO_DIR/randomware.deb"
+    dpkg-deb --build --root-owner-group "$PKG_BUILD"
+    mv "$RW_HOME/randomware.deb" "$REPO_DIR/randomware.deb" 2>/dev/null || \
+        find "$RW_HOME" -maxdepth 1 -name "randomware.deb" -exec mv {} "$REPO_DIR/randomware.deb" \;
 
     cd "$REPO_DIR"
     dpkg-scanpackages . /dev/null > Packages
@@ -100,7 +117,7 @@ add_tool() {
 
     echo "$name" >> "$TOOLS_FILE"
     DEPS=$(paste -sd, "$TOOLS_FILE" | sed 's/,/, /g')
-    sed -i "s/^Depends:.*/Depends: $DEPS/" "$PKG_DIR/DEBIAN/control"
+    sed -i "s/^Depends:.*/Depends: $DEPS/" "$PKG_SRC/DEBIAN/control"
 
     if [ "$SOURCE" = "kali" ]; then
         touch "$KALI_TOOLS_FILE"
@@ -131,10 +148,10 @@ add_wordlist() {
         exit 1
     fi
 
-    local outfile="$WORDLIST_DIR/${name}.txt"
-    local postinst="$PKG_DIR/DEBIAN/postinst"
+    local outfile="\$WORDLIST_DIR/${name}.txt"
+    local postinst="$PKG_SRC/DEBIAN/postinst"
 
-    if grep -q "$outfile" "$postinst"; then
+    if grep -q "${name}.txt" "$postinst"; then
         echo "[randomware] Wordlist '$name' already present in postinst, nothing to do."
         exit 0
     fi
@@ -148,8 +165,12 @@ add_wordlist() {
 main() {
     exec 200>"$LOCKFILE"
     if ! flock -n 200; then
-        echo "[randomware] ERROR: another randomware operation is already running (lockfile: $LOCKFILE). Try again shortly."
+        echo "[randomware] ERROR: another randomware operation is already running. Try again shortly."
         exit 1
+    fi
+
+    if [ "$1" = "-add" ]; then
+        ensure_repo
     fi
 
     case "$1" in
