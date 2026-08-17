@@ -1,13 +1,13 @@
 Package: randomware
-Version: 1.0.3
+Version: 1.0.4
 Architecture: amd64
 Maintainer: Gunornot <ornotgun@gmail.com>
-Depends: aircrack-ng, mdk4, hcxdumptool, hcxtools, reaver, pixiewps, wifite, bettercap, hashcat, john, hydra, crunch, nmap, arp-scan, wireshark, tcpdump, ettercap-text-only, sqlmap, ncat, git, gcc, make, pkg-config, libpcap-dev, libnl-3-dev, libnl-genl-3-dev, build-essential, macchanger, fern-wifi-cracker
+Depends: aircrack-ng, mdk4, hcxdumptool, hcxtools, reaver, pixiewps, wifite, bettercap, hashcat, john, hydra, crunch, nmap, arp-scan, wireshark, tcpdump, ettercap-text-only, sqlmap, ncat, git, gcc, make, pkg-config, libpcap-dev, libnl-3-dev, libnl-genl-3-dev, build-essential, macchanger, fern-wifi-cracker, cowpatty, netdiscover
 Filename: ./randomware.deb
-Size: 1630
-MD5sum: c64ef1fb1b396d5e283f1b902c6464a0
-SHA1: 36bd2ff1d5c6ab8ac692774f89e5112ceeea10e5
-SHA256: 017917025ad6283c10baa5bd6beee35b107123d298753ad00c29efd2522e170e
+Size: 3760
+MD5sum: 2948ba1eeef842d6bd9c974f81eb4d0a
+SHA1: 487bd5fa82c5e5f514ff17758b4209451f2e10b1
+SHA256: 2024bc093b5287b88051b23e76b7d8138dbdc96172832ea89bbe97961692788d
 Section: utils
 Priority: optional
 Description: Gun's personal pentesting/OSINT toolkit meta-package

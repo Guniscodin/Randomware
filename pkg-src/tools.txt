@@ -28,3 +28,4 @@ build-essential
 macchanger
 fern-wifi-cracker
 cowpatty
+netdiscover

@@ -1,9 +1,9 @@
 Package: randomware
-Version: 1.0.3
+Version: 1.0.4
 Section: utils
 Priority: optional
 Architecture: amd64
-Depends: aircrack-ng, mdk4, hcxdumptool, hcxtools, reaver, pixiewps, wifite, bettercap, hashcat, john, hydra, crunch, nmap, arp-scan, wireshark, tcpdump, ettercap-text-only, sqlmap, ncat, git, gcc, make, pkg-config, libpcap-dev, libnl-3-dev, libnl-genl-3-dev, build-essential, macchanger, fern-wifi-cracker, cowpatty
+Depends: aircrack-ng, mdk4, hcxdumptool, hcxtools, reaver, pixiewps, wifite, bettercap, hashcat, john, hydra, crunch, nmap, arp-scan, wireshark, tcpdump, ettercap-text-only, sqlmap, ncat, git, gcc, make, pkg-config, libpcap-dev, libnl-3-dev, libnl-genl-3-dev, build-essential, macchanger, fern-wifi-cracker, cowpatty, netdiscover
 Maintainer: Gunornot <ornotgun@gmail.com>
 Description: Gun's personal pentesting/OSINT toolkit meta-package
  Bundles wifi auditing, cracking, and network recon tools
