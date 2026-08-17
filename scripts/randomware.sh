@@ -8,6 +8,7 @@ TOOLS_FILE="$BASE/tools.txt"
 KALI_TOOLS_FILE="$BASE/kali-tools.txt"
 GPG_KEY="CD01C33406E0A9FC2316FCB268014A519BCDFC3D"
 WORDLIST_DIR="/usr/share/wordlists"
+LOCKFILE="/tmp/randomware.lock"
 
 usage() {
     echo "Usage:"
@@ -17,6 +18,10 @@ usage() {
 }
 
 rebuild_and_publish() {
+    cd "$REPO_DIR"
+    echo "[randomware] Pulling latest repo state before publishing..."
+    git pull --rebase
+
     cd "$BASE"
 
     CURRENT_VER=$(grep "^Version:" "$PKG_DIR/DEBIAN/control" | awk '{print $2}')
@@ -29,7 +34,7 @@ rebuild_and_publish() {
     cp "$BASE/randomware.deb" "$REPO_DIR/randomware.deb"
 
     cd "$REPO_DIR"
-    dpkg-scanpackages --multiversion . /dev/null > Packages
+    dpkg-scanpackages . /dev/null > Packages
     gzip -k -f Packages
 
     cat > Release << EOF
@@ -71,6 +76,7 @@ add_tool() {
     echo "[randomware] Checking if '$name' is available via apt..."
 
     local SOURCE=""
+    local POLICY_OUT
     POLICY_OUT=$(apt-cache policy "$name" 2>/dev/null)
 
     if [ -z "$POLICY_OUT" ] || ! echo "$POLICY_OUT" | grep -q "Candidate:"; then
@@ -139,15 +145,25 @@ add_wordlist() {
     rebuild_and_publish
 }
 
-case "$1" in
-    -add)
-        case "$2" in
-            t) add_tool "$3" ;;
-            w) add_wordlist "$3" "$4" ;;
-            *) usage ;;
-        esac
-        ;;
-    *)
-        usage
-        ;;
-esac
+main() {
+    exec 200>"$LOCKFILE"
+    if ! flock -n 200; then
+        echo "[randomware] ERROR: another randomware operation is already running (lockfile: $LOCKFILE). Try again shortly."
+        exit 1
+    fi
+
+    case "$1" in
+        -add)
+            case "$2" in
+                t) add_tool "$3" ;;
+                w) add_wordlist "$3" "$4" ;;
+                *) usage ;;
+            esac
+            ;;
+        *)
+            usage
+            ;;
+    esac
+}
+
+main "$@"
