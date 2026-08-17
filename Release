@@ -1,0 +1,17 @@
+Origin: randomware
+Label: randomware
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: just some random packages
+Date: Mon, 17 Aug 2026 19:30:29 +0000
+MD5Sum:
+ 69ba4f1170ec8256759f98c64123a2b7 860 Packages
+ afde11cba3659b83a546d21a1492e8c1 593 Packages.gz
+SHA1:
+ 812cbf7db422e33a3bb2ff62be0c811d6dda5bf5 860 Packages
+ 284a3972b3ccfbefdf02ef566aef2652a492c1e0 593 Packages.gz
+SHA256:
+ 96876c60e10e6b085d9dd8574023a99bb7e502b2034083bfddc61d3986fd6232 860 Packages
+ d0419bf7b2ecfb2dbe354ddc4501b7bc2fe687257956a5b94671d47f0356b0b9 593 Packages.gz

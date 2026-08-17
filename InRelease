@@ -1,0 +1,36 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: randomware
+Label: randomware
+Suite: stable
+Codename: stable
+Architectures: amd64
+Components: main
+Description: just some random packages
+Date: Mon, 17 Aug 2026 19:30:29 +0000
+MD5Sum:
+ 69ba4f1170ec8256759f98c64123a2b7 860 Packages
+ afde11cba3659b83a546d21a1492e8c1 593 Packages.gz
+SHA1:
+ 812cbf7db422e33a3bb2ff62be0c811d6dda5bf5 860 Packages
+ 284a3972b3ccfbefdf02ef566aef2652a492c1e0 593 Packages.gz
+SHA256:
+ 96876c60e10e6b085d9dd8574023a99bb7e502b2034083bfddc61d3986fd6232 860 Packages
+ d0419bf7b2ecfb2dbe354ddc4501b7bc2fe687257956a5b94671d47f0356b0b9 593 Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEzQHDNAbgqfwjFvyyaAFKUZvN/D0FAmqDYZcACgkQaAFKUZvN
+/D1Tkg//eyDTzA0kl9QJDf29BIQ6joW87uzUz9r73wJ+QgfFPBAfPg4IegPRA1Fn
+jxamwnKVXXa+nu+dJTvM2nQKa9U07CAWp7dKhkDOdNYCI3cpTFEv0FKpZm4KAR4W
+Ku+FGUOYRm82xuqEKlMwz2RboM9LtnH3+bmJoqRdffW/V8/oZfMg+QakHsdgyFaj
+6Wom3xJXLO/8slOsWUMtQiGUgNz5a2Ejqpf8oT13j7q45Zy3X1g5PDx5lucg1+TD
+BVx2MGD/pylgiHjYoySmmF6yLLcG+vXaXRgX3nbzAXUbwYWfy/UZNIVbYjTkMExQ
+kqzH0Te46aNuRxvI4Uk6c7JkAwczJUqquxLzVANev9sa2hQMaScfnp0vmvIV8C8M
+u5kIp3MfrQPGJiJ5R2auPR305IoTs4wfaS74ks+zV/TyeUtQIZwRLZxiMBjPfJ2e
+/k9O4y/9avly6nAEWsbRXUqpnUiqpVEO85Ndsxa+bwD1Ji3x3SFPatn+NZ44YNSm
+tZpiwkgjpy8CP0/XMSTcW7LnV0A9vTE3HfguUC9K50LU8qzAq7xKAzYF39purMEB
+mzsKYkGSFf1l2FtpLI00nOZwddmTgvd9X/7dZvnIK/uQUbEhgYEINx0dB8aIMJOT
+iUuoDiSmc3rQYXc5eOp5Nan5pvKBIMByjjXCrBDHu3BVQgcEzhc=
+=07xM
+-----END PGP SIGNATURE-----
