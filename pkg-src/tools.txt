@@ -27,3 +27,4 @@ libnl-genl-3-dev
 build-essential
 macchanger
 fern-wifi-cracker
+cowpatty
