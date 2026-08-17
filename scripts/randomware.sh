@@ -5,6 +5,7 @@ BASE="/home/gunornot/toolkit-repo"
 REPO_DIR="$BASE/repo"
 PKG_DIR="$BASE/randomware"
 TOOLS_FILE="$BASE/tools.txt"
+KALI_TOOLS_FILE="$BASE/kali-tools.txt"
 GPG_KEY="CD01C33406E0A9FC2316FCB268014A519BCDFC3D"
 WORDLIST_DIR="/usr/share/wordlists"
 
@@ -18,18 +19,15 @@ usage() {
 rebuild_and_publish() {
     cd "$BASE"
 
-    # Bump version (patch number)
     CURRENT_VER=$(grep "^Version:" "$PKG_DIR/DEBIAN/control" | awk '{print $2}')
     NEW_VER=$(echo "$CURRENT_VER" | awk -F. '{print $1"."$2"."$3+1}')
     sed -i "s/^Version:.*/Version: $NEW_VER/" "$PKG_DIR/DEBIAN/control"
     echo "[randomware] Bumping version $CURRENT_VER -> $NEW_VER"
 
-    # Rebuild .deb
     rm -f "$BASE/randomware.deb"
     dpkg-deb --build --root-owner-group "$PKG_DIR"
     cp "$BASE/randomware.deb" "$REPO_DIR/randomware.deb"
 
-    # Regenerate repo index
     cd "$REPO_DIR"
     dpkg-scanpackages --multiversion . /dev/null > Packages
     gzip -k -f Packages
@@ -57,12 +55,10 @@ SHA256:
  $(sha256sum Packages.gz | awk '{print $1}') $(stat -c%s Packages.gz) Packages.gz
 EOF
 
-    # Re-sign
     rm -f Release.gpg InRelease
     gpg --default-key "$GPG_KEY" -abs -o Release.gpg Release
     gpg --default-key "$GPG_KEY" --clearsign -o InRelease Release
 
-    # Push
     git add .
     git commit -m "Update: randomware v$NEW_VER"
     git push
@@ -74,12 +70,18 @@ add_tool() {
     local name="$1"
     echo "[randomware] Checking if '$name' is available via apt..."
 
-    if ! apt-cache show "$name" > /dev/null 2>&1; then
-        echo "[randomware] ERROR: '$name' not found in apt. It may need a different repo (e.g. Kali) or a source build."
+    local SOURCE=""
+    if apt-cache show "$name" > /dev/null 2>&1; then
+        SOURCE="standard"
+    elif apt-cache policy "$name" 2>/dev/null | grep -q "http.kali.org"; then
+        echo "[randomware] '$name' not in standard repos, but found in Kali fallback."
+        SOURCE="kali"
+    else
+        echo "[randomware] ERROR: '$name' not found in apt (standard or Kali). May need a source build."
         exit 1
     fi
 
-    if grep -qx "$name" "$TOOLS_FILE"; then
+    if grep -qx "$name" "$TOOLS_FILE" 2>/dev/null; then
         echo "[randomware] '$name' is already in tools.txt, nothing to do."
         exit 0
     fi
@@ -88,7 +90,17 @@ add_tool() {
     DEPS=$(paste -sd, "$TOOLS_FILE" | sed 's/,/, /g')
     sed -i "s/^Depends:.*/Depends: $DEPS/" "$PKG_DIR/DEBIAN/control"
 
-    echo "[randomware] Added '$name' to tools.txt and control file."
+    if [ "$SOURCE" = "kali" ]; then
+        touch "$KALI_TOOLS_FILE"
+        if ! grep -qx "$name" "$KALI_TOOLS_FILE" 2>/dev/null; then
+            echo "$name" >> "$KALI_TOOLS_FILE"
+        fi
+        echo "[randomware] Added '$name' (source: Kali fallback) to tools.txt and control file."
+        echo "[randomware] NOTE: devices installing randomware need the Kali fallback repo configured for this one to resolve."
+    else
+        echo "[randomware] Added '$name' (source: standard repos) to tools.txt and control file."
+    fi
+
     rebuild_and_publish
 }
 
@@ -115,7 +127,6 @@ add_wordlist() {
         exit 0
     fi
 
-    # Insert new fetch line before the final gunzip/echo block
     sed -i "/^if \[ -f \"\$WORDLIST_DIR\/rockyou.txt.gz\" \]; then/i fetch \"$url\" \\\\\n      \"$outfile\"\n" "$postinst"
 
     echo "[randomware] Added wordlist '$name' to postinst."
