@@ -17,6 +17,10 @@ ensure_repo() {
         echo "[randomware] Repo source not found locally, cloning to $REPO_DIR..."
         mkdir -p "$RW_HOME"
         git clone "$REPO_URL" "$REPO_DIR"
+    else
+        echo "[randomware] Syncing local repo state..."
+        cd "$REPO_DIR"
+        git pull --rebase
     fi
 }
 
@@ -29,8 +33,6 @@ usage() {
 
 rebuild_and_publish() {
     cd "$REPO_DIR"
-    echo "[randomware] Pulling latest repo state before publishing..."
-    git pull --rebase
 
     # Sync pkg-src -> build dir
     rm -rf "$PKG_BUILD"
